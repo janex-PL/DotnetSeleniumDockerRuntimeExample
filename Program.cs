@@ -2,8 +2,9 @@
 using OpenQA.Selenium.Chrome;
 
 var chromeOptions = new ChromeOptions();
+// remember about the necessary arguments when running inside container! 
 chromeOptions.AddArguments("--headless","--disable-gpu",
-    "--no-sandbox", "--disable-dev-shm-usage"); // remember about the necessary arguments when running inside container! 
+    "--no-sandbox", "--disable-dev-shm-usage"); 
 
 while (true)
 {
@@ -12,22 +13,25 @@ while (true)
     
     if (string.Equals(input, "q", StringComparison.OrdinalIgnoreCase))
         break;
-    
+
     chromeOptions.BrowserVersion = input;
-    var driver = new ChromeDriver(chromeOptions);
+
+    var chromeService = ChromeDriverService.CreateDefaultService();
+    chromeService.SuppressInitialDiagnosticInformation = true;
+
     try
     {
+        var driver = new ChromeDriver(chromeService,chromeOptions);
+        
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
 
         driver.Navigate().GoToUrl("https://www.whatsmybrowser.org/");
         Console.WriteLine(driver.FindElement(By.TagName("h2")).Text);
+        
+        driver.Quit();
     }
     catch (Exception e)
     {
         Console.WriteLine(e);
-    }
-    finally
-    {
-        driver.Quit();
     }
 }
